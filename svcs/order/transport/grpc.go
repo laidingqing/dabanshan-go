@@ -123,7 +123,6 @@ func NewGRPCClient(conn *grpc.ClientConn, tracer stdopentracing.Tracer, logger l
 			Name:    "CreateOrder",
 			Timeout: 30 * time.Second,
 		}))(createOrderEndpoint)
-
 		getOrdersEndpoint = grpctransport.NewClient(
 			conn,
 			"pb.OrderRpcService",

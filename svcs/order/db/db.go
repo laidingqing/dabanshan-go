@@ -16,6 +16,7 @@ type Database interface {
 	AddCart(cart *m_order.Cart) (string, error)
 	RemoveCartItem(cartID string) (bool, error)
 	GetCartItems(userID string) ([]m_order.Cart, error)
+
 }
 
 var (
@@ -90,3 +91,4 @@ func RemoveCartItem(cartID string) (bool, error) {
 func GetCartItems(userID string) ([]m_order.Cart, error) {
 	return DefaultDb.GetCartItems(userID)
 }
+
