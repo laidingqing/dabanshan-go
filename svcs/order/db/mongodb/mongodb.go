@@ -125,6 +125,7 @@ func (m *Mongo) CreateOrder(u *m_order.Invoice) (string, error) {
 	return mu.ID.Hex(), nil
 }
 
+
 // GetOrders 根据用户查询订单列表.
 func (m *Mongo) GetOrders(usrID string) ([]m_order.Invoice, error) {
 	s := m.Session.Copy()
@@ -194,3 +195,4 @@ func (m *Mongo) RemoveCartItem(cartID string) (bool, error) {
 	}
 	return true, nil
 }
+
