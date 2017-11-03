@@ -8,6 +8,7 @@ import (
 	"github.com/laidingqing/dabanshan/svcs/order/model"
 )
 
+// Middleware ...
 type Middleware func(Service) Service
 
 // LoggingMiddleware ..
@@ -29,6 +30,27 @@ func (mw loggingMiddleware) CreateOrder(ctx context.Context, a model.CreateOrder
 	return mw.next.CreateOrder(ctx, a)
 }
 
+func (mw loggingMiddleware) GetOrders(ctx context.Context, a model.GetOrdersRequest) (v model.GetOrdersResponse, err error) {
+	defer func() {
+		mw.logger.Log("method", "CreateOrder", "err", err)
+	}()
+	return mw.next.GetOrders(ctx, a)
+}
+
+func (mw loggingMiddleware) AddCart(ctx context.Context, a model.CreateCartRequest) (v model.CreatedCartResponse, err error) {
+	defer func() {
+		mw.logger.Log("method", "AddCart", "err", err)
+	}()
+	return mw.next.AddCart(ctx, a)
+}
+
+func (mw loggingMiddleware) GetCartItems(ctx context.Context, req model.GetCartItemsRequest) (v model.GetCartItemsResponse, err error) {
+	defer func() {
+		mw.logger.Log("method", "GetCartItems", "userID", req.UserID, "err", err)
+	}()
+	return mw.next.GetCartItems(ctx, req)
+}
+
 // InstrumentingMiddleware ..
 func InstrumentingMiddleware(ints, chars metrics.Counter) Middleware {
 	return func(next Service) Service {
@@ -48,5 +70,19 @@ type instrumentingMiddleware struct {
 
 func (mw instrumentingMiddleware) CreateOrder(ctx context.Context, a model.CreateOrderRequest) (model.CreatedOrderResponse, error) {
 	v, err := mw.next.CreateOrder(ctx, a)
+	return v, err
+}
+
+func (mw instrumentingMiddleware) GetOrders(ctx context.Context, a model.GetOrdersRequest) (model.GetOrdersResponse, error) {
+	v, err := mw.next.GetOrders(ctx, a)
+	return v, err
+}
+
+func (mw instrumentingMiddleware) AddCart(ctx context.Context, a model.CreateCartRequest) (model.CreatedCartResponse, error) {
+	v, err := mw.next.AddCart(ctx, a)
+	return v, err
+}
+func (mw instrumentingMiddleware) GetCartItems(ctx context.Context, req model.GetCartItemsRequest) (model.GetCartItemsResponse, error) {
+	v, err := mw.next.GetCartItems(ctx, req)
 	return v, err
 }

@@ -4,14 +4,26 @@ var (
 	ErrMissingField = "Error missing %v"
 )
 
-type Product struct {
+// ProductCatalog 分类
+type ProductCatalog struct {
+	ID          string `json:"id" bson:"_id"`
 	Name        string `json:"name" bson:"name"`
 	Description string `json:"description" bson:"description"`
-	Price       string `json:"price" bson:"price"`
-	ProductID   string `json:"id" bson:"-"`
-	UserID      string `json:"userid" bson:"userid"`
 }
 
+// Product 商品信息
+type Product struct {
+	Name        string   `json:"name" bson:"name"`
+	Description string   `json:"description" bson:"description"`
+	Price       string   `json:"price" bson:"price"`
+	ID          string   `json:"id" bson:"-"`
+	UserID      string   `json:"userID" bson:"userID"`
+	CatalogID   string   `json:"catalogID" bson:"catalogID"`
+	Status      int      `json:"status" bson:"status"`
+	Thumbnails  []string `json:"thumbnails" bson:"thumbnails"`
+}
+
+// New a new product instance
 func New() Product {
 	p := Product{}
 	return p

@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"html"
 	"io"
 	"net/http"
 	"os"
@@ -11,18 +10,23 @@ import (
 	"syscall"
 	"time"
 
-	"google.golang.org/grpc"
-
 	"github.com/go-kit/kit/endpoint"
 	consulsd "github.com/go-kit/kit/sd/consul"
 	"github.com/hashicorp/consul/api"
 	p_endpoint "github.com/laidingqing/dabanshan/svcs/product/endpoint"
 	p_service "github.com/laidingqing/dabanshan/svcs/product/service"
 	p_transport "github.com/laidingqing/dabanshan/svcs/product/transport"
+	"google.golang.org/grpc"
+
 
 	u_endpoint "github.com/laidingqing/dabanshan/svcs/user/endpoint"
 	u_service "github.com/laidingqing/dabanshan/svcs/user/service"
 	u_transport "github.com/laidingqing/dabanshan/svcs/user/transport"
+
+	o_endpoint "github.com/laidingqing/dabanshan/svcs/order/endpoint"
+	o_service "github.com/laidingqing/dabanshan/svcs/order/service"
+	o_transport "github.com/laidingqing/dabanshan/svcs/order/transport"
+
 	stdopentracing "github.com/opentracing/opentracing-go"
 
 	"github.com/go-kit/kit/log"
@@ -36,7 +40,8 @@ func main() {
 		consulAddr   = flag.String("consul.addr", "localhost:8500", "Consul agent address")
 		retryMax     = flag.Int("retry.max", 3, "per-request retries to different instances")
 		retryTimeout = flag.Duration("retry.timeout", 500*time.Millisecond, "per-request timeout, including retries")
-		staticDir    = flag.String("static_dir", "/statics", "static directory in addition to default static directory")
+		//staticDir    = flag.String("static_dir", "/public", "static directory in addition to default static directory")
+
 	)
 	flag.Parse()
 
@@ -75,8 +80,11 @@ func main() {
 			passingOnly      = true
 			pEndpoints       = p_endpoint.Set{}
 			uEndpoints       = u_endpoint.Set{}
+			oEndpoints       = o_endpoint.Set{}
 			productInstancer = consulsd.NewInstancer(client, logger, "productsvc", tags, passingOnly)
 			userInstancer    = consulsd.NewInstancer(client, logger, "usersvc", tags, passingOnly)
+			orderInstancer   = consulsd.NewInstancer(client, logger, "ordersvc", tags, passingOnly)
+
 		)
 		{
 			productfactory := addProductFactory(p_endpoint.MakeGetProductsEndpoint, tracer, logger)
@@ -95,6 +103,7 @@ func main() {
 		{
 			userfactory := addUserFactory(u_endpoint.MakeRegisterEndpoint, tracer, logger)
 			endpointer := sd.NewEndpointer(userInstancer, userfactory, logger)
+
 			balancer := lb.NewRoundRobin(endpointer)
 			retry := lb.Retry(*retryMax, *retryTimeout, balancer)
 			uEndpoints.RegisterEndpoint = retry
@@ -106,15 +115,36 @@ func main() {
 			retry := lb.Retry(*retryMax, *retryTimeout, balancer)
 			uEndpoints.LoginEndpoint = retry
 		}
+		{
+			orderfactory := addOrderFactory(o_endpoint.MakeAddCartEndpoint, tracer, logger)
+			endpointer := sd.NewEndpointer(orderInstancer, orderfactory, logger)
+			balancer := lb.NewRoundRobin(endpointer)
+			retry := lb.Retry(*retryMax, *retryTimeout, balancer)
+			oEndpoints.CreateCartEndpoint = retry
+		}
+		{
+			orderfactory := addOrderFactory(o_endpoint.MakeCreateOrderEndpoint, tracer, logger)
+			endpointer := sd.NewEndpointer(orderInstancer, orderfactory, logger)
+			balancer := lb.NewRoundRobin(endpointer)
+			retry := lb.Retry(*retryMax, *retryTimeout, balancer)
+			oEndpoints.CreateOrderEndpoint = retry
+		}
+		{
+			orderfactory := addOrderFactory(o_endpoint.MakeGetCartItemsEndpoint, tracer, logger)
+			endpointer := sd.NewEndpointer(orderInstancer, orderfactory, logger)
+			balancer := lb.NewRoundRobin(endpointer)
+			retry := lb.Retry(*retryMax, *retryTimeout, balancer)
+			oEndpoints.GetCartItemsEndpoint = retry
+		}
+
 		mux.Handle("/api/v1/products/", p_transport.NewHTTPHandler(pEndpoints, tracer, logger))
 		mux.Handle("/api/v1/users/", u_transport.NewHTTPHandler(uEndpoints, tracer, logger))
-		// Setup static routes
-		mux.Handle("/", http.FileServer(http.Dir(*staticDir)))
-		mux.HandleFunc("/api/v1/echo", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.FormValue("user")))
-		})
+		mux.Handle("/api/v1/orders/", o_transport.NewHTTPHandler(oEndpoints, tracer, logger))
+		mux.Handle("/api/v1/carts/", o_transport.NewHTTPHandler(oEndpoints, tracer, logger))
+
 	}
 	http.Handle("/", accessControl(mux))
+	//http.Handle("/static/", staticServer(mux, *staticDir))
 	// Interrupt handler.
 	errc := make(chan error, 2)
 	go func() {
@@ -126,7 +156,7 @@ func main() {
 	// HTTP transport.
 	go func() {
 		logger.Log("transport", "HTTP", "addr", *httpAddr)
-		errc <- http.ListenAndServe(*httpAddr, nil)
+		errc <- http.ListenAndServe(*httpAddr, mux)
 	}()
 
 	// Run!
@@ -153,6 +183,19 @@ func addProductFactory(makeEndpoint func(p_service.Service) endpoint.Endpoint, t
 			return nil, nil, err
 		}
 		service := p_transport.NewGRPCClient(conn, tracer, logger)
+		endpoint := makeEndpoint(service)
+		return endpoint, conn, nil
+	}
+}
+
+
+func addOrderFactory(makeEndpoint func(o_service.Service) endpoint.Endpoint, tracer stdopentracing.Tracer, logger log.Logger) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		conn, err := grpc.Dial(instance, grpc.WithInsecure())
+		if err != nil {
+			return nil, nil, err
+		}
+		service := o_transport.NewGRPCClient(conn, tracer, logger)
 		endpoint := makeEndpoint(service)
 		return endpoint, conn, nil
 	}
