@@ -15,9 +15,11 @@ message OrderItemRecord{
     string userid = 3;
 }
 
+
 message CreateOrderRequest{
     float amount = 1;
 }
+
 
 message CreateCartRequest{
     OrderItemRecord item = 1;
@@ -56,4 +58,5 @@ service OrderRpcService{
     rpc GetOrders(GetOrdersRequest) returns (GetOrdersResponse) {}
     rpc AddCart(CreateCartRequest) returns (CreatedCartResponse) {}
     rpc GetCartItems(GetCartItemsRequest) returns (GetCartItemsResponse) {}
+
 }

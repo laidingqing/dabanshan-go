@@ -18,6 +18,7 @@ import (
 	p_transport "github.com/laidingqing/dabanshan/svcs/product/transport"
 	"google.golang.org/grpc"
 
+
 	u_endpoint "github.com/laidingqing/dabanshan/svcs/user/endpoint"
 	u_service "github.com/laidingqing/dabanshan/svcs/user/service"
 	u_transport "github.com/laidingqing/dabanshan/svcs/user/transport"
@@ -40,6 +41,7 @@ func main() {
 		retryMax     = flag.Int("retry.max", 3, "per-request retries to different instances")
 		retryTimeout = flag.Duration("retry.timeout", 500*time.Millisecond, "per-request timeout, including retries")
 		//staticDir    = flag.String("static_dir", "/public", "static directory in addition to default static directory")
+
 	)
 	flag.Parse()
 
@@ -82,6 +84,7 @@ func main() {
 			productInstancer = consulsd.NewInstancer(client, logger, "productsvc", tags, passingOnly)
 			userInstancer    = consulsd.NewInstancer(client, logger, "usersvc", tags, passingOnly)
 			orderInstancer   = consulsd.NewInstancer(client, logger, "ordersvc", tags, passingOnly)
+
 		)
 		{
 			productfactory := addProductFactory(p_endpoint.MakeGetProductsEndpoint, tracer, logger)
@@ -100,6 +103,7 @@ func main() {
 		{
 			userfactory := addUserFactory(u_endpoint.MakeRegisterEndpoint, tracer, logger)
 			endpointer := sd.NewEndpointer(userInstancer, userfactory, logger)
+
 			balancer := lb.NewRoundRobin(endpointer)
 			retry := lb.Retry(*retryMax, *retryTimeout, balancer)
 			uEndpoints.RegisterEndpoint = retry
@@ -137,6 +141,7 @@ func main() {
 		mux.Handle("/api/v1/users/", u_transport.NewHTTPHandler(uEndpoints, tracer, logger))
 		mux.Handle("/api/v1/orders/", o_transport.NewHTTPHandler(oEndpoints, tracer, logger))
 		mux.Handle("/api/v1/carts/", o_transport.NewHTTPHandler(oEndpoints, tracer, logger))
+
 	}
 	http.Handle("/", accessControl(mux))
 	//http.Handle("/static/", staticServer(mux, *staticDir))
@@ -182,6 +187,7 @@ func addProductFactory(makeEndpoint func(p_service.Service) endpoint.Endpoint, t
 		return endpoint, conn, nil
 	}
 }
+
 
 func addOrderFactory(makeEndpoint func(o_service.Service) endpoint.Endpoint, tracer stdopentracing.Tracer, logger log.Logger) sd.Factory {
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
