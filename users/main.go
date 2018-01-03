@@ -12,8 +12,9 @@ import (
 	"github.com/laidingqing/dabanshan/common/config"
 	grpclb "github.com/laidingqing/dabanshan/common/registry"
 	"github.com/laidingqing/dabanshan/pb"
-	. "github.com/laidingqing/dabanshan/users/service"
+	"github.com/laidingqing/dabanshan/users/service"
 	"google.golang.org/grpc"
+	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
 func main() {
@@ -21,8 +22,16 @@ func main() {
 	config.ParseCmdParams(config.DefaultCmdLine{
 		HostName:         "localhost",
 		Port:             4100,
-		ServiceName:      "hello_service",
+		ServiceName:      "user_service",
 		RegistryLocation: "http://127.0.0.1:2379",
+	})
+
+	// Set up the core logger
+	log.SetOutput(&lumberjack.Logger{
+		Filename:   "./logs/user_service.log",
+		MaxSize:    config.Logger.MaxSize,
+		MaxBackups: config.Logger.MaxBackups,
+		MaxAge:     config.Logger.MaxAge,
 	})
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", config.Service.Port))
@@ -51,6 +60,6 @@ func main() {
 
 	log.Printf("starting hello service at %d", config.Service.Port)
 	s := grpc.NewServer()
-	pb.RegisterGreeterServer(s, &RpcServer{})
+	pb.RegisterUserServiceServer(s, &service.RPCUserServer{})
 	s.Serve(lis)
 }

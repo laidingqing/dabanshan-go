@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package pb;
+
+option java_multiple_files = true;
+option java_package = "com.dabanshan.grpc";
+option java_outer_classname = "UserServiceProto";
+option objc_class_prefix = "DBS";
+
+import "user.proto";
+
+service UserService {
+    rpc createUser (CreateUserRequest) returns (CreateUserResponse);
+    rpc getUser (GetUserRequest) returns (GetUserResponse);
+    rpc getByUsername (GetByUsernameRequest) returns (GetByUsernameResponse);
+}
