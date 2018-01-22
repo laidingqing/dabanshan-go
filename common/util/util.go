@@ -110,6 +110,13 @@ func GenHashString(data string) string {
 	return hex.EncodeToString(mac.Sum(nil))
 }
 
+func CalculatePassHash(pass, salt string) string {
+	h := sha1.New()
+	io.WriteString(h, salt)
+	io.WriteString(h, pass)
+	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
 //Generates a random token
 func GenToken() string {
 	b := make([]byte, 16)

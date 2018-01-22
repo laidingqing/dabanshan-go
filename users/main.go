@@ -58,7 +58,7 @@ func main() {
 		os.Exit(1)
 	}()
 
-	log.Printf("starting hello service at %d", config.Service.Port)
+	log.Printf("starting user service at %d", config.Service.Port)
 	s := grpc.NewServer()
 	pb.RegisterUserServiceServer(s, &service.RPCUserServer{})
 	s.Serve(lis)

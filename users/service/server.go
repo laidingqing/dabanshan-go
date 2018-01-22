@@ -6,17 +6,34 @@ import (
 	"log"
 	"time"
 
+	"github.com/laidingqing/dabanshan/common/util"
 	"github.com/laidingqing/dabanshan/pb"
+	"github.com/laidingqing/dabanshan/users/model"
+	"github.com/laidingqing/dabanshan/users/mongo"
 )
 
 // RPCUserServer is used to implement user_service.UserServiceServer.
 type RPCUserServer struct{}
 
+var (
+	manager = mongo.NewUserManager()
+)
+
 // CreateUser implements user_service.UserServiceServer
 func (s *RPCUserServer) CreateUser(context context.Context, request *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
 	fmt.Printf("Receive is %s\n", time.Now())
+	rev, err := manager.Insert(model.User{
+		UserName: request.Username,
+		Password: util.CalculatePassHash(request.Password, request.Username),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &pb.CreateUserResponse{User: &pb.User{
-		Username: "laidingqing",
+		Id:       rev.ID.Hex(),
+		Username: rev.UserName,
 	}}, nil
 }
 

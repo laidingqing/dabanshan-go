@@ -20,7 +20,12 @@ var Logger struct {
 	MaxAge     int
 }
 
-// Initialize Default values
+var Database struct {
+	HostURI      string
+	DatabaseName string
+}
+
+// LoadDefaults Initialize Default values
 func LoadDefaults() {
 	_, err := util.GetExecDirectory()
 	if err != nil {
@@ -31,4 +36,6 @@ func LoadDefaults() {
 	Logger.MaxSize = 10
 	Logger.MaxBackups = 3
 	Logger.MaxAge = 30
+
+	Database.HostURI = "http://localhost:27017"
 }
