@@ -13,26 +13,26 @@ import (
 )
 
 // UsersController user api struct
-type UsersController struct{}
+type AccountsController struct{}
 
 //UserResponse user api response
-type UserResponse struct {
-	User model.User `json:"user"`
+type AccountResponse struct {
+	Account model.Account `json:"account"`
 }
 
 var usersWebService *restful.WebService
 
-func (uc UsersController) userURI() string {
-	return APIPrefix() + "/users"
+func (uc AccountsController) userURI() string {
+	return APIPrefix() + "/accounts"
 }
 
 // Service ..
-func (uc UsersController) Service() *restful.WebService {
+func (uc AccountsController) Service() *restful.WebService {
 	return usersWebService
 }
 
 //Register Define routes
-func (uc UsersController) Register(container *restful.Container) {
+func (uc AccountsController) Register(container *restful.Container) {
 	usersWebService = new(restful.WebService)
 	// usersWebService.Filter(LogRequest)
 	usersWebService.
@@ -60,33 +60,33 @@ func (uc UsersController) Register(container *restful.Container) {
 }
 
 //Create a User
-func (uc UsersController) create(request *restful.Request, response *restful.Response) {
-	newUser := new(model.User)
+func (uc AccountsController) create(request *restful.Request, response *restful.Response) {
+	newUser := new(model.Account)
 	err := request.ReadEntity(newUser)
 	if err != nil {
 		WriteBadRequestError(response)
 		return
 	}
-	rev, err := client.GetClient().CreateUser(context.Background(), &pb.CreateUserRequest{Username: newUser.UserName, Password: newUser.Password})
+	rev, err := client.GetAccountClient().CreateAccount(context.Background(), &pb.CreateAccountRequest{Username: newUser.UserName, Password: newUser.Password})
 	if err != nil {
 		WriteError(err, response)
 		return
 	}
-	response.AddHeader("ETag", rev.User.Id)
+	response.AddHeader("ETag", rev.Account.Id)
 	response.WriteHeader(http.StatusCreated)
 }
 
 // read user info
-func (uc UsersController) read(request *restful.Request, response *restful.Response) {
+func (uc AccountsController) read(request *restful.Request, response *restful.Response) {
 	userID := request.PathParameter("user-id")
 	log.Printf("user-id is %s", userID)
-	res, err := client.GetClient().GetByUsername(context.Background(), &pb.GetByUsernameRequest{Username: "asone"})
+	res, err := client.GetAccountClient().GetByUsername(context.Background(), &pb.GetByUsernameRequest{Username: "asone"})
 	if err != nil {
 		WriteError(err, response)
 		return
 	}
 	response.AddHeader("ETag", "")
-	response.WriteEntity(UserResponse{User: model.User{
-		UserName: res.User.Username,
+	response.WriteEntity(AccountResponse{User: model.Account{
+		UserName: res.Account.Username,
 	}})
 }

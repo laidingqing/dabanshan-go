@@ -10,13 +10,13 @@ import (
 	"google.golang.org/grpc"
 )
 
-var userCli pb.UserServiceClient
-var userServiceName = "user_service"
+var accountCli pb.AccountServiceClient
+var accountServiceName = "account_service"
 
-//GetClient get grpc client
-func GetClient() pb.UserServiceClient {
-	if userCli == nil {
-		r := grpclb.NewResolver(userServiceName)
+//GetAccountClient get grpc client
+func GetAccountClient() pb.AccountServiceClient {
+	if accountCli == nil {
+		r := grpclb.NewResolver(accountServiceName)
 		b := grpc.RoundRobin(r)
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -24,7 +24,7 @@ func GetClient() pb.UserServiceClient {
 		if err != nil {
 			panic(err)
 		}
-		userCli = pb.NewUserServiceClient(conn)
+		accountCli = pb.NewAccountServiceClient(conn)
 	}
-	return userCli
+	return accountCli
 }
