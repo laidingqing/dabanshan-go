@@ -8,8 +8,8 @@ option objc_class_prefix = "DBS";
 package pb;
 
 enum EpisodeStatus{
-  SALER = 0;
-  BUYER = 1;
+  NORMAL = 0;
+  EXPIRED = 1;
 }
 
 message EpisodeHead {
@@ -31,6 +31,14 @@ message Episode {
   repeated EpisodeItem items = 2;
 }
 
+
+message CreateEpisodeRequest {
+  Episode episode = 1;
+}
+
+message CreateEpisodeResponse {
+  Episode episode = 1;
+}
 
 //offer::on
 message OfferHead {

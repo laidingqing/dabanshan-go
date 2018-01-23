@@ -6,14 +6,27 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+//EpisodeOfferStatus Episode Offer Status
+type EpisodeOfferStatus int
+
+const (
+	_ EpisodeOfferStatus = iota
+	//NORMAL 正常
+	NORMAL
+	//EXPIRED 过期的不可报价
+	EXPIRED
+)
+
 //Episode 发布的需求(销售)事件
 type Episode struct {
-	ID        bson.ObjectId `bson:"_id" json:"id"`
-	Name      string        `bson:"name" json:"name,omitempty"`
-	Expire    time.Time     `bson:"expire" json:"expire,omitempty"`
-	AccountID string        `bson:"accountId" json:"accountId"`
-	CreatedAt time.Time     `bson:"createdAt" json:"createdAt,omitempty"`
-	UpdatedAt time.Time     `bson:"cupdatedAt" json:"cupdatedAt,omitempty"`
+	ID          bson.ObjectId      `bson:"_id" json:"id"`
+	Name        string             `bson:"name" json:"name,omitempty"`
+	Expire      time.Time          `bson:"expire" json:"expire,omitempty"`
+	AccountID   string             `bson:"accountId" json:"accountId"`
+	CreatedAt   time.Time          `bson:"createdAt" json:"createdAt,omitempty"`
+	UpdatedAt   time.Time          `bson:"cupdatedAt" json:"cupdatedAt,omitempty"`
+	Items       []EpisodeItem      `bson:"-" json:"items,omitempty"`
+	OfferStatus EpisodeOfferStatus `bson:"offerStatus" json:"offerStatus,omitempty"`
 }
 
 //EpisodeItem 明细项
@@ -39,4 +52,11 @@ type OfferItem struct {
 	Name          string        `bson:"name" json:"name"`
 	Price         float32       `bson:"price" json:"price"`
 	CreatedAt     time.Time     `bson:"createdAt" json:"createdAt,omitempty"`
+}
+
+//PagnationEpisode ...
+type PagnationEpisode struct {
+	Data        interface{} `bson:"-" json:"data"`
+	TotalCount  int         `bson:"-" json:"totalCount"`
+	CurrentPage int         `bson:"-" json:"currentPage"`
 }

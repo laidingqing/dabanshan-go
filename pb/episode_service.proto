@@ -8,3 +8,7 @@ option objc_class_prefix = "DBS";
 package pb;
 
 import "episode.proto";
+
+service EpisodeService {
+  rpc createEpisode(CreateEpisodeRequest) returns (CreateEpisodeResponse);
+}
