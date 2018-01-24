@@ -22,7 +22,7 @@ func main() {
 	config.ParseCmdParams(config.DefaultCmdLine{
 		HostName:         "localhost",
 		Port:             4200,
-		ServiceName:      "episode_service",
+		ServiceName:      config.ServiceEpisodeName,
 		RegistryLocation: "http://127.0.0.1:2379",
 	})
 

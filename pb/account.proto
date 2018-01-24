@@ -39,9 +39,10 @@ message AuthInfo{
 message Account {
     string id = 1;
     string username = 2; //手机号
-    string name = 3; //姓名
-    string invite = 4; //邀请码
-    repeated AccountType roles = 5;//角色
+    string password = 3; //密码
+    string name = 4; //姓名
+    string invite = 5; //邀请码
+    repeated AccountType roles = 6;//角色
 }
 
 message CreateAccountRequest {
@@ -63,6 +64,7 @@ message GetAccountResponse {
 
 message GetByUsernameRequest{
     string username = 1;
+    string password = 2;
 }
 
 message GetByUsernameResponse{

@@ -1,13 +1,15 @@
 package controller
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
 	restful "github.com/emicklei/go-restful"
-	"github.com/laidingqing/amadd9/common/config"
+	auth "github.com/laidingqing/dabanshan/common/auth"
+	"github.com/laidingqing/dabanshan/common/config"
 	couchdb "github.com/rhinoman/couchdb-go"
 )
 
@@ -18,7 +20,7 @@ type Controller interface {
 
 //APIVersion api version
 func APIVersion() string {
-	return config.ApiVersion
+	return config.APIVersion
 }
 
 //APIPrefix .. api prefix
@@ -66,4 +68,38 @@ func WriteError(err error, response *restful.Response) {
 	response.WriteErrorString(statusCode, reason)
 	//Log the error
 	log.Printf("%v", err)
+}
+
+//GetAuthorization 获取认证信息
+func GetAuthorization(request *http.Request) (interface{}, error) {
+
+	return "", nil
+}
+
+//LogRequest Filter function.  Logs incoming requests
+func LogRequest(request *restful.Request, resp *restful.Response,
+	chain *restful.FilterChain) {
+	method := request.Request.Method
+	url := request.Request.URL.String()
+	remoteAddr := request.Request.RemoteAddr
+	log.Printf("[API] %v : %v %v", remoteAddr, method, url)
+	chain.ProcessFilter(request, resp)
+}
+
+//Unauthenticated respone a unauthenticated error
+func Unauthenticated(request *restful.Request, response *restful.Response) {
+	LogError(request, response, errors.New("Unauthenticated"))
+	response.AddHeader("Content-Type", "text/plain")
+	response.WriteErrorString(401, "Unauthenticated")
+}
+
+//AuthUser 受保护的请求
+func AuthUser(request *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
+	//TODO ..
+	err := auth.ValidateTokenMiddleware(request)
+	if err != nil {
+		Unauthenticated(request, resp)
+		return
+	}
+	chain.ProcessFilter(request, resp)
 }

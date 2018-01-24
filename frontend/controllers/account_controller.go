@@ -6,9 +6,12 @@ import (
 	"net/http"
 
 	restful "github.com/emicklei/go-restful"
+	model "github.com/laidingqing/Dabanshan/accounts/model"
+	. "github.com/laidingqing/Dabanshan/common/auth"
 	. "github.com/laidingqing/Dabanshan/common/controller"
 	client "github.com/laidingqing/Dabanshan/frontend/clients"
-	model "github.com/laidingqing/Dabanshan/users/model"
+	"github.com/laidingqing/dabanshan/common/auth"
+	"github.com/laidingqing/dabanshan/common/util"
 	"github.com/laidingqing/dabanshan/pb"
 )
 
@@ -34,7 +37,7 @@ func (uc AccountsController) Service() *restful.WebService {
 //Register Define routes
 func (uc AccountsController) Register(container *restful.Container) {
 	usersWebService = new(restful.WebService)
-	// usersWebService.Filter(LogRequest)
+	//usersWebService.Filter(LogRequest)
 	usersWebService.
 		Path(uc.userURI()).
 		Doc("Manage Users").
@@ -42,19 +45,26 @@ func (uc AccountsController) Register(container *restful.Container) {
 		Consumes(restful.MIME_JSON).
 		Produces(restful.MIME_JSON)
 
+	usersWebService.Route(usersWebService.POST("/session").To(uc.session).
+		// Filter(AuthUser).
+		Doc("session a User").
+		Operation("session").
+		Reads(model.Account{}).
+		Writes(auth.AccountCredentials{}))
+
 	usersWebService.Route(usersWebService.POST("").To(uc.create).
 		// Filter(AuthUser).
 		Doc("Create a User").
 		Operation("create").
-		Reads(model.User{}).
-		Writes(UserResponse{}))
+		Reads(model.Account{}).
+		Writes(AccountResponse{}))
 
 	usersWebService.Route(usersWebService.GET("/{user-id}").To(uc.read).
 		// Filter(AuthUser).
 		Doc("Gets a User").
 		Operation("read").
 		Param(usersWebService.PathParameter("user-id", "User Name").DataType("string")).
-		Writes(UserResponse{}))
+		Writes(AccountResponse{}))
 
 	container.Add(usersWebService)
 }
@@ -86,7 +96,27 @@ func (uc AccountsController) read(request *restful.Request, response *restful.Re
 		return
 	}
 	response.AddHeader("ETag", "")
-	response.WriteEntity(AccountResponse{User: model.Account{
+	response.WriteEntity(AccountResponse{Account: model.Account{
 		UserName: res.Account.Username,
 	}})
+}
+
+//session user login and session
+func (uc AccountsController) session(request *restful.Request, response *restful.Response) {
+	acct := new(model.Account)
+	err := request.ReadEntity(acct)
+	if err != nil {
+		WriteBadRequestError(response)
+		return
+	}
+	res, err := client.GetAccountClient().GetByUsername(context.Background(), &pb.GetByUsernameRequest{Username: acct.UserName})
+	if err != nil {
+		WriteError(err, response)
+		return
+	}
+	diffPassword := util.CalculatePassHash(acct.Password, request.Username)
+	if res.Account.Password != diffPassword {
+		WriteError(auth.UnauthenticatedError(), response)
+		return
+	}
 }

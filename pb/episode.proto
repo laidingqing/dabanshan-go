@@ -27,8 +27,9 @@ message EpisodeItem {
 }
 
 message Episode {
-  EpisodeHead head = 1;
-  repeated EpisodeItem items = 2;
+  string id = 1;
+  EpisodeHead head = 2;
+  repeated EpisodeItem items = 3;
 }
 
 
