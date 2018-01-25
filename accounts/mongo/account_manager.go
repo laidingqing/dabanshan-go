@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"log"
 	"time"
 
 	"github.com/laidingqing/dabanshan/accounts/model"
@@ -17,11 +18,9 @@ type AccountManager struct {
 // NewAccountManager new manager
 func NewAccountManager() *AccountManager {
 	session, err := mgo.Dial(config.Database.HostURI)
-	defer session.Close()
 	if err != nil {
 		fatalError(err)
 	}
-	session.DB(config.Database.DatabaseName)
 	return &AccountManager{
 		session: session,
 	}
@@ -34,21 +33,28 @@ func (um *AccountManager) CopySession() *mgo.Session {
 
 //Insert 根据用户名查询用户
 func (um *AccountManager) Insert(user model.Account) (model.Account, error) {
-	copySession := um.session.Copy()
+	copySession := um.CopySession()
 	defer copySession.Close()
 	query := copySession.DB(config.Database.DatabaseName).C(accountCollectionName)
 	user.ID = bson.NewObjectId()
 	user.CreatedAt = time.Now()
-	query.Insert(user)
+	err := query.Insert(user)
+	if err != nil {
+		log.Printf("db manager err: %s", err.Error())
+		return model.Account{}, err
+	}
 	return user, nil
 }
 
 //FindByUserName 根据用户名查询用户
-func (um *AccountManager) FindByUserName(username string) (interface{}, error) {
-	copySession := um.session.Copy()
+func (um *AccountManager) FindByUserName(username string) (model.Account, error) {
+	copySession := um.CopySession()
 	defer copySession.Close()
 	var user model.Account
 	query := copySession.DB(config.Database.DatabaseName).C(accountCollectionName)
-	query.Find(bson.M{"username": username}).One(&user)
+	err := query.Find(bson.M{"username": username}).One(&user)
+	if err != nil {
+		return model.Account{}, err
+	}
 	return user, nil
 }

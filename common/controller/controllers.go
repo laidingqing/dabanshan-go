@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	restful "github.com/emicklei/go-restful"
-	auth "github.com/laidingqing/dabanshan/common/auth"
+	"github.com/laidingqing/dabanshan/common/auth"
 	"github.com/laidingqing/dabanshan/common/config"
 	couchdb "github.com/rhinoman/couchdb-go"
 )
@@ -68,12 +68,6 @@ func WriteError(err error, response *restful.Response) {
 	response.WriteErrorString(statusCode, reason)
 	//Log the error
 	log.Printf("%v", err)
-}
-
-//GetAuthorization 获取认证信息
-func GetAuthorization(request *http.Request) (interface{}, error) {
-
-	return "", nil
 }
 
 //LogRequest Filter function.  Logs incoming requests

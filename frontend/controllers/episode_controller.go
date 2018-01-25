@@ -5,10 +5,9 @@ import (
 	"net/http"
 
 	restful "github.com/emicklei/go-restful"
-	. "github.com/laidingqing/Dabanshan/common/controller"
-	model "github.com/laidingqing/Dabanshan/episodes/model"
-	client "github.com/laidingqing/Dabanshan/frontend/clients"
-	"github.com/laidingqing/dabanshan/pb"
+	. "github.com/laidingqing/dabanshan/common/controller"
+	"github.com/laidingqing/dabanshan/episodes/model"
+	client "github.com/laidingqing/dabanshan/frontend/clients"
 )
 
 // EpisodesController user api struct
@@ -66,8 +65,7 @@ func (ec EpisodesController) create(request *restful.Request, response *restful.
 		WriteBadRequestError(response)
 		return
 	}
-	var episodeReqModel = &pb.CreateEpisodeRequest{}
-	rev, err := client.GetEpisodeClient().CreateEpisode(context.Background(), episodeReqModel)
+	rev, err := client.GetEpisodeClient().CreateEpisode(context.Background(), DecodeEpisode(*newEpisode))
 	if err != nil {
 		WriteError(err, response)
 		return

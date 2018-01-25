@@ -33,6 +33,7 @@ const (
 // Account 用户账号信息
 type Account struct {
 	ID          bson.ObjectId `bson:"_id" json:"id"`
+	AccountID   string        `bson:"-" json:"id"`
 	UserName    string        `bson:"username" json:"username,omitempty"`
 	Password    string        `bson:"password" json:"password,omitempty"`
 	Salt        string        `bson:"salt" json:"-"`
@@ -54,4 +55,11 @@ type AuthInfo struct {
 	Message   string          `bson:"message" json:"message,omitempty"`
 	Result    AuthCheckResult `bson:"result" json:"result,omitempty"`
 	CreatedAt time.Time       `bson:"createdAt" json:"createdAt,omitempty"`
+}
+
+//FlowsTag 账号关注的食材标签
+type FlowsTag struct {
+	ID        bson.ObjectId `bson:"_id" json:"id"`
+	AccountID string        `bson:"accountId" json:"accountId"`
+	Tags      []string      `bson:"tags" json:"tags"` //关注的标签
 }

@@ -26,6 +26,7 @@ func (s *RPCAccountServer) CreateAccount(context context.Context, request *pb.Cr
 	rev, err := accountManager.Insert(model.Account{
 		UserName: request.Username,
 		Password: util.CalculatePassHash(request.Password, request.Username),
+		Salt:     request.Username,
 	})
 
 	if err != nil {
@@ -49,8 +50,14 @@ func (s *RPCAccountServer) GetAccount(context context.Context, request *pb.GetAc
 // GetByUsername implements account_service.UserServiceServer
 func (s *RPCAccountServer) GetByUsername(context context.Context, request *pb.GetByUsernameRequest) (*pb.GetByUsernameResponse, error) {
 	log.Printf("Get user by username for: %v", request.Username)
+	res, err := accountManager.FindByUserName(request.Username)
+	if err != nil {
+		return &pb.GetByUsernameResponse{}, err
+	}
 	return &pb.GetByUsernameResponse{Account: &pb.Account{
-		Username: "laidingqing",
+		Id:       res.ID.Hex(),
+		Username: res.UserName,
+		Password: res.Password,
 	}}, nil
 }
 

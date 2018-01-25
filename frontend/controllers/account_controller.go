@@ -6,19 +6,18 @@ import (
 	"net/http"
 
 	restful "github.com/emicklei/go-restful"
-	model "github.com/laidingqing/Dabanshan/accounts/model"
-	. "github.com/laidingqing/Dabanshan/common/auth"
-	. "github.com/laidingqing/Dabanshan/common/controller"
-	client "github.com/laidingqing/Dabanshan/frontend/clients"
+	model "github.com/laidingqing/dabanshan/accounts/model"
 	"github.com/laidingqing/dabanshan/common/auth"
+	. "github.com/laidingqing/dabanshan/common/controller"
 	"github.com/laidingqing/dabanshan/common/util"
+	"github.com/laidingqing/dabanshan/frontend/clients"
 	"github.com/laidingqing/dabanshan/pb"
 )
 
-// UsersController user api struct
+// AccountsController user api struct
 type AccountsController struct{}
 
-//UserResponse user api response
+//AccountResponse user api response
 type AccountResponse struct {
 	Account model.Account `json:"account"`
 }
@@ -73,11 +72,13 @@ func (uc AccountsController) Register(container *restful.Container) {
 func (uc AccountsController) create(request *restful.Request, response *restful.Response) {
 	newUser := new(model.Account)
 	err := request.ReadEntity(newUser)
+	log.Printf("username: %s", newUser.UserName)
 	if err != nil {
+		log.Printf("err: %s", err.Error())
 		WriteBadRequestError(response)
 		return
 	}
-	rev, err := client.GetAccountClient().CreateAccount(context.Background(), &pb.CreateAccountRequest{Username: newUser.UserName, Password: newUser.Password})
+	rev, err := clients.GetAccountClient().CreateAccount(context.Background(), &pb.CreateAccountRequest{Username: newUser.UserName, Password: newUser.Password})
 	if err != nil {
 		WriteError(err, response)
 		return
@@ -90,7 +91,7 @@ func (uc AccountsController) create(request *restful.Request, response *restful.
 func (uc AccountsController) read(request *restful.Request, response *restful.Response) {
 	userID := request.PathParameter("user-id")
 	log.Printf("user-id is %s", userID)
-	res, err := client.GetAccountClient().GetByUsername(context.Background(), &pb.GetByUsernameRequest{Username: "asone"})
+	res, err := clients.GetAccountClient().GetByUsername(context.Background(), &pb.GetByUsernameRequest{Username: "asone"})
 	if err != nil {
 		WriteError(err, response)
 		return
@@ -109,14 +110,24 @@ func (uc AccountsController) session(request *restful.Request, response *restful
 		WriteBadRequestError(response)
 		return
 	}
-	res, err := client.GetAccountClient().GetByUsername(context.Background(), &pb.GetByUsernameRequest{Username: acct.UserName})
+	res, err := clients.GetAccountClient().GetByUsername(context.Background(), &pb.GetByUsernameRequest{Username: acct.UserName})
 	if err != nil {
 		WriteError(err, response)
 		return
 	}
-	diffPassword := util.CalculatePassHash(acct.Password, request.Username)
+	diffPassword := util.CalculatePassHash(acct.Password, acct.UserName)
+	log.Printf("db password: %s, login password: %s", res.Account.Password, diffPassword)
 	if res.Account.Password != diffPassword {
 		WriteError(auth.UnauthenticatedError(), response)
 		return
 	}
+	jwt, err := auth.CreateJWT()
+	if err != nil {
+		WriteError(err, response)
+		return
+	}
+	response.WriteEntity(auth.AccountCredentials{
+		Username:    res.Account.Username,
+		AccessToken: jwt,
+	})
 }

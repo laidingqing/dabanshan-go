@@ -10,7 +10,7 @@ var (
 	//ServiceAccountName 账号微服务名称
 	ServiceAccountName = "account_service"
 	//ServiceEpisodeName 买卖需求微服务名称
-	ServiceEpisodeName = "account_service"
+	ServiceEpisodeName = "episode_service"
 )
 
 //APIVersion api prefix
@@ -51,4 +51,5 @@ func LoadDefaults() {
 	Logger.MaxAge = 30
 
 	Database.HostURI = "http://localhost:27017"
+	Database.DatabaseName = "dabanshan"
 }

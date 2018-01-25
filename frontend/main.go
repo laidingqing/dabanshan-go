@@ -26,11 +26,10 @@ func main() {
 		MaxBackups: config.Logger.MaxBackups,
 		MaxAge:     config.Logger.MaxAge,
 	})
-
 	wsContainer := restful.NewContainer()
 	wsContainer.Router(restful.CurlyRouter{})
 	wsContainer.EnableContentEncoding(true)
-	uc := controllers.UsersController{}
+	uc := controllers.AccountsController{}
 	uc.Register(wsContainer)
 	httpAddr := ":" + strconv.Itoa(config.Service.Port)
 	log.Printf("starting frontend at %s", httpAddr)

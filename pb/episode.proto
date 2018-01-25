@@ -22,8 +22,8 @@ message EpisodeHead {
 message EpisodeItem {
   string productid = 1;
   string name = 2;
-  int64 weight = 3; //重量（大约）
-  int64 quantity = 4;//数量
+  float weight = 3; //重量（大约）
+  float quantity = 4;//数量
 }
 
 message Episode {
