@@ -5,9 +5,10 @@ import (
 	"net/http"
 
 	restful "github.com/emicklei/go-restful"
+	"github.com/laidingqing/dabanshan/common/auth"
+	client "github.com/laidingqing/dabanshan/common/clients"
 	. "github.com/laidingqing/dabanshan/common/controller"
 	"github.com/laidingqing/dabanshan/episodes/model"
-	client "github.com/laidingqing/dabanshan/frontend/clients"
 )
 
 // EpisodesController user api struct
@@ -59,18 +60,20 @@ func (ec EpisodesController) Register(container *restful.Container) {
 
 //create 创建一个供应需求，角色为卖方
 func (ec EpisodesController) create(request *restful.Request, response *restful.Response) {
+	credential, _ := auth.GetAuthenticateHeader(request)
 	newEpisode := new(model.Episode)
 	err := request.ReadEntity(newEpisode)
 	if err != nil {
-		WriteBadRequestError(response)
+		WriteBadRequestErrorInfo(response, err)
 		return
 	}
+	newEpisode.AccountID = credential.Id
 	rev, err := client.GetEpisodeClient().CreateEpisode(context.Background(), DecodeEpisode(*newEpisode))
 	if err != nil {
 		WriteError(err, response)
 		return
 	}
-	response.AddHeader("ETag", rev.Episode.Id)
+	response.AddHeader("ETag", rev.Revid)
 	response.WriteHeader(http.StatusCreated)
 }
 

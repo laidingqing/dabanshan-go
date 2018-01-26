@@ -8,9 +8,9 @@ import (
 	restful "github.com/emicklei/go-restful"
 	model "github.com/laidingqing/dabanshan/accounts/model"
 	"github.com/laidingqing/dabanshan/common/auth"
+	"github.com/laidingqing/dabanshan/common/clients"
 	. "github.com/laidingqing/dabanshan/common/controller"
 	"github.com/laidingqing/dabanshan/common/util"
-	"github.com/laidingqing/dabanshan/frontend/clients"
 	"github.com/laidingqing/dabanshan/pb"
 )
 
@@ -45,23 +45,28 @@ func (uc AccountsController) Register(container *restful.Container) {
 		Produces(restful.MIME_JSON)
 
 	usersWebService.Route(usersWebService.POST("/session").To(uc.session).
-		// Filter(AuthUser).
 		Doc("session a User").
 		Operation("session").
 		Reads(model.Account{}).
 		Writes(auth.AccountCredentials{}))
 
 	usersWebService.Route(usersWebService.POST("").To(uc.create).
-		// Filter(AuthUser).
 		Doc("Create a User").
 		Operation("create").
 		Reads(model.Account{}).
 		Writes(AccountResponse{}))
 
 	usersWebService.Route(usersWebService.GET("/{user-id}").To(uc.read).
-		// Filter(AuthUser).
+		Filter(AuthUser).
 		Doc("Gets a User").
 		Operation("read").
+		Param(usersWebService.PathParameter("user-id", "User Name").DataType("string")).
+		Writes(AccountResponse{}))
+
+	usersWebService.Route(usersWebService.POST("/{user-id}/tags").To(uc.createTags).
+		Filter(AuthUser).
+		Doc("Post a User's Tags").
+		Operation("createTags").
 		Param(usersWebService.PathParameter("user-id", "User Name").DataType("string")).
 		Writes(AccountResponse{}))
 
@@ -126,8 +131,15 @@ func (uc AccountsController) session(request *restful.Request, response *restful
 		WriteError(err, response)
 		return
 	}
+	//Save current account token.
+
 	response.WriteEntity(auth.AccountCredentials{
 		Username:    res.Account.Username,
 		AccessToken: jwt,
 	})
+}
+
+//createTags, update a tags by buyer.
+func (uc AccountsController) createTags(request *restful.Request, response *restful.Response) {
+
 }

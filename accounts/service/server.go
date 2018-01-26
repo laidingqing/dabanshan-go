@@ -93,3 +93,50 @@ func (s *RPCAccountServer) GetCurrentAuthInfo(ctx context.Context, in *pb.GetAut
 		Info: &pb.AuthInfo{},
 	}, nil
 }
+
+//UpdateToken 更新当前会话TOKEN
+func (s *RPCAccountServer) UpdateToken(ctx context.Context, in *pb.UpdateSessionTokenRequest) (*pb.UpdateSessionTokenResonse, error) {
+	err := accountManager.UpdateCurrentToken(in.Accountid, in.Token)
+	log.Printf("UpdateCurrentToken Err: %s", err.Error())
+	if err != nil {
+		return &pb.UpdateSessionTokenResonse{Updated: false}, err
+	}
+	return &pb.UpdateSessionTokenResonse{Updated: true}, nil
+}
+
+//GetByToken get Account by token
+func (s *RPCAccountServer) GetByToken(ctx context.Context, in *pb.GetByTokenRequest) (*pb.GetByTokenResponse, error) {
+	acct, err := accountManager.FindAccountByToken(in.Token)
+	if err != nil {
+		return &pb.GetByTokenResponse{}, err
+	}
+	return &pb.GetByTokenResponse{
+		Account: dencodeAccountInfo(acct)}, nil
+}
+
+//FollowUser 关注用户
+func (s *RPCAccountServer) FollowUser(ctx context.Context, in *pb.FollowUserRequest) (*pb.FollowUserResponse, error) {
+	account, err := accountManager.FindByID(in.Accountid)
+	if err != nil {
+		return nil, err
+	}
+	flowAcct, err := accountManager.FindByID(in.Followid)
+	if err != nil {
+		return nil, err
+	}
+
+	follows, err := accountManager.FindFollows(account.AccountID, flowAcct.AccountID)
+	if len(follows) > 0 {
+		return &pb.FollowUserResponse{Followed: true}, nil
+	}
+	rev, err := accountManager.InsertFollow(model.Follows{
+		AccountID: account.ID.Hex(),
+		FollowID:  flowAcct.ID.Hex(),
+		CreatedAt: time.Now(),
+	})
+	log.Printf("new follow[%s] by acct id: %s", rev, account.AccountID)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.FollowUserResponse{Followed: true}, nil
+}

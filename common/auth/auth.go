@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -8,6 +9,8 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
 	restful "github.com/emicklei/go-restful"
+	"github.com/laidingqing/dabanshan/common/clients"
+	"github.com/laidingqing/dabanshan/pb"
 )
 
 var (
@@ -30,6 +33,7 @@ type AuthError struct {
 
 //AccountCredentials session struct
 type AccountCredentials struct {
+	Id          string `json:"id"`
 	Username    string `json:"name"`
 	AccountType string `json:"accountType"`
 	AccessToken string `json:"accessToken"`
@@ -64,6 +68,25 @@ func CreateJWT() (string, error) {
 	token.Claims = claims
 
 	return token.SignedString([]byte(SecretKey))
+}
+
+//GetAuthenticateHeader get Account Info by authenticate header
+func GetAuthenticateHeader(r *restful.Request) (AccountCredentials, error) {
+	token, err := request.ParseFromRequest(r.Request, request.AuthorizationHeaderExtractor,
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(SecretKey), nil
+		})
+	if err == nil {
+		res, err := clients.GetAccountClient().GetByToken(context.Background(), &pb.GetByTokenRequest{Token: token.Raw})
+		if err != nil {
+			return AccountCredentials{}, err
+		}
+		return AccountCredentials{
+			Id:       res.Account.Id,
+			Username: res.Account.Username,
+		}, nil
+	}
+	return AccountCredentials{}, nil
 }
 
 //ValidateTokenMiddleware validate token with jwt

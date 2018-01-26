@@ -10,11 +10,16 @@ option objc_class_prefix = "DBS";
 import "account.proto";
 
 service AccountService {
+
     rpc createAccount (CreateAccountRequest) returns (CreateAccountResponse);
     rpc getAccount (GetAccountRequest) returns (GetAccountResponse);
     rpc getByUsername (GetByUsernameRequest) returns (GetByUsernameResponse);
+    rpc updateToken (UpdateSessionTokenRequest) returns (UpdateSessionTokenResonse);
+    rpc getByToken (GetByTokenRequest) returns (GetByTokenResponse);
 
     rpc createAuthInfo (CreateAuthInfoRequest) returns (CreateAuthInfoResponse);
     rpc checkAuthInfo (CreateCheckAuthInfoRequest) returns (CreateCheckAuthInfoResponse);
     rpc getCurrentAuthInfo (GetAuthInfoRequest) returns (GetAuthInfoResponse);
+
+    rpc followUser (FollowUserRequest) returns (FollowUserResponse);
 }

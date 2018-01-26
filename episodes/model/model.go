@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/laidingqing/dabanshan/common/util"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -21,7 +22,7 @@ const (
 type Episode struct {
 	ID          bson.ObjectId      `bson:"_id" json:"id"`
 	Name        string             `bson:"name" json:"name,omitempty"`
-	Expire      time.Time          `bson:"expire" json:"expire,omitempty"`
+	Expire      util.JsonTime      `bson:"expire" json:"expire,omitempty"`
 	AccountID   string             `bson:"accountId" json:"accountId"`
 	CreatedAt   time.Time          `bson:"createdAt" json:"createdAt,omitempty"`
 	UpdatedAt   time.Time          `bson:"cupdatedAt" json:"cupdatedAt,omitempty"`
@@ -40,6 +41,7 @@ type EpisodeItem struct {
 	UpdatedAt time.Time     `bson:"cupdatedAt" json:"cupdatedAt,omitempty"`
 	Weight    float32       `bson:"weight" json:"weight,omitempty"`
 	Quantity  float32       `bson:"quantity" json:"quantity,omitempty"`
+	Unit      string        `bson:"unit" json:"unit,omitempty"`
 }
 
 //OfferItem offer items.

@@ -42,6 +42,12 @@ func WriteBadRequestError(response *restful.Response) {
 	response.WriteErrorString(http.StatusBadRequest, "Bad Request")
 }
 
+//WriteBadRequestErrorInfo ...
+func WriteBadRequestErrorInfo(response *restful.Response, err error) {
+	log.Printf("400: Bad Request")
+	response.WriteErrorString(http.StatusBadRequest, err.Error())
+}
+
 //WriteError Writes and logs errors from the couchdb driver
 func WriteError(err error, response *restful.Response) {
 	var statusCode int

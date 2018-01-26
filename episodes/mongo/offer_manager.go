@@ -17,11 +17,9 @@ type OfferManager struct {
 //NewOfferManager episode data manager
 func NewOfferManager() *OfferManager {
 	session, err := mgo.Dial(config.Database.HostURI)
-	defer session.Close()
 	if err != nil {
 		fatalError(err)
 	}
-	session.DB(config.Database.DatabaseName)
 	return &OfferManager{
 		session: session,
 	}

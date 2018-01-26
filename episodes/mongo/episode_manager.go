@@ -17,11 +17,9 @@ type EpisodeManager struct {
 //NewEpisodeManager episode data manager
 func NewEpisodeManager() *EpisodeManager {
 	session, err := mgo.Dial(config.Database.HostURI)
-	defer session.Close()
 	if err != nil {
 		fatalError(err)
 	}
-	session.DB(config.Database.DatabaseName)
 	return &EpisodeManager{
 		session: session,
 	}

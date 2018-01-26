@@ -46,6 +46,19 @@ func (um *AccountManager) Insert(user model.Account) (model.Account, error) {
 	return user, nil
 }
 
+//FindByID find account by id
+func (um *AccountManager) FindByID(id string) (model.Account, error) {
+	var acct model.Account
+	copySession := um.CopySession()
+	defer copySession.Close()
+	coll := copySession.DB(config.Database.DatabaseName).C(accountCollectionName)
+	err := coll.FindId(bson.ObjectIdHex(id)).One(&acct)
+	if err != nil {
+		return model.Account{}, err
+	}
+	return acct, nil
+}
+
 //FindByUserName 根据用户名查询用户
 func (um *AccountManager) FindByUserName(username string) (model.Account, error) {
 	copySession := um.CopySession()
@@ -57,4 +70,57 @@ func (um *AccountManager) FindByUserName(username string) (model.Account, error)
 		return model.Account{}, err
 	}
 	return user, nil
+}
+
+//FindAccountByToken 根据当前TOKEN查询账号
+func (um *AccountManager) FindAccountByToken(token string) (model.Account, error) {
+	var acct model.Account
+	copySession := um.CopySession()
+	defer copySession.Close()
+	coll := copySession.DB(config.Database.DatabaseName).C(accountCollectionName)
+	err := coll.Find(bson.M{"token": token}).One(&acct)
+	if err != nil {
+		return model.Account{}, err
+	}
+	return acct, nil
+}
+
+//UpdateCurrentToken 更新会话账号TOKEN
+func (um *AccountManager) UpdateCurrentToken(id string, token string) error {
+	copySession := um.CopySession()
+	defer copySession.Close()
+	coll := copySession.DB(config.Database.DatabaseName).C(accountCollectionName)
+	err := coll.UpdateId(bson.ObjectIdHex(id), bson.M{"$set": bson.M{"token": token}})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//InsertFollow insert a follow
+func (um *AccountManager) InsertFollow(follow model.Follows) (string, error) {
+	copySession := um.CopySession()
+	defer copySession.Close()
+	query := copySession.DB(config.Database.DatabaseName).C(followsCollectionName)
+	follow.ID = bson.NewObjectId()
+	follow.CreatedAt = time.Now()
+	err := query.Insert(follow)
+	if err != nil {
+		log.Printf("db manager err: %s", err.Error())
+		return "", err
+	}
+	return follow.ID.Hex(), nil
+}
+
+//FindFollows find list follow by acctId
+func (um *AccountManager) FindFollows(acctID string, followID string) ([]model.Follows, error) {
+	copySession := um.CopySession()
+	defer copySession.Close()
+	coll := copySession.DB(config.Database.DatabaseName).C(followsCollectionName)
+	var follows []model.Follows
+	err := coll.Find(bson.M{"accountId": acctID, "followId": followID}).All(&follows)
+	if err != nil {
+		return nil, err
+	}
+	return follows, nil
 }

@@ -10,6 +10,7 @@ import (
 var session *mgo.Session
 var authCollectionName = "auths"
 var accountCollectionName = "accounts"
+var followsCollectionName = "follows"
 
 func fatalError(err error) {
 	log.Printf("mongodb error")

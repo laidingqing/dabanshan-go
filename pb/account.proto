@@ -62,6 +62,14 @@ message GetAccountResponse {
     Account account = 1;
 }
 
+message GetByTokenRequest{
+    string token = 1;
+}
+
+message GetByTokenResponse{
+    Account account = 1;
+}
+
 message GetByUsernameRequest{
     string username = 1;
     string password = 2;
@@ -94,4 +102,22 @@ message GetAuthInfoRequest{
 
 message GetAuthInfoResponse{
   AuthInfo info = 1;
+}
+
+message UpdateSessionTokenRequest{
+  string accountid = 1;
+  string token = 2;
+}
+
+message UpdateSessionTokenResonse{
+  bool updated = 1;
+}
+
+message FollowUserRequest {
+  string accountid = 1;
+  string followid = 2;
+}
+
+message FollowUserResponse {
+  bool followed = 1;
 }

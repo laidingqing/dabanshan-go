@@ -31,6 +31,8 @@ func main() {
 	wsContainer.EnableContentEncoding(true)
 	uc := controllers.AccountsController{}
 	uc.Register(wsContainer)
+	ec := controllers.EpisodesController{}
+	ec.Register(wsContainer)
 	httpAddr := ":" + strconv.Itoa(config.Service.Port)
 	log.Printf("starting frontend at %s", httpAddr)
 	log.Fatal(http.ListenAndServe(httpAddr, wsContainer))

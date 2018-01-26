@@ -39,6 +39,7 @@ type Account struct {
 	Salt        string        `bson:"salt" json:"-"`
 	CreatedAt   time.Time     `bson:"createdAt" json:"createdAt,omitempty"`
 	AccountType []AccountType `bson:"accountType" json:"accountType,omitempty"`
+	Token       string        `bson:"token" json:"-,omitempty"`
 }
 
 //AuthInfo 用户认证信息
@@ -57,9 +58,17 @@ type AuthInfo struct {
 	CreatedAt time.Time       `bson:"createdAt" json:"createdAt,omitempty"`
 }
 
-//FlowsTag 账号关注的食材标签
-type FlowsTag struct {
+//InterestTag 账号关注的食材标签
+type InterestTag struct {
 	ID        bson.ObjectId `bson:"_id" json:"id"`
 	AccountID string        `bson:"accountId" json:"accountId"`
 	Tags      []string      `bson:"tags" json:"tags"` //关注的标签
+}
+
+//Follows 关注
+type Follows struct {
+	ID        bson.ObjectId `bson:"_id" json:"id"`
+	AccountID string        `bson:"accountId" json:"accountId"`
+	FollowID  string        `bson:"followId" json:"followId"`
+	CreatedAt time.Time     `bson:"createdAt" json:"createdAt,omitempty"`
 }

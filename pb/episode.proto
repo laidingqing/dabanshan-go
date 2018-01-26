@@ -38,7 +38,7 @@ message CreateEpisodeRequest {
 }
 
 message CreateEpisodeResponse {
-  Episode episode = 1;
+  string revid = 1;
 }
 
 //offer::on

@@ -11,6 +11,8 @@ var (
 	ServiceAccountName = "account_service"
 	//ServiceEpisodeName 买卖需求微服务名称
 	ServiceEpisodeName = "episode_service"
+	//ServiceNotifactionName 通知服务
+	ServiceNotifactionName = "notifaction_service"
 )
 
 //APIVersion api prefix
