@@ -51,7 +51,7 @@ func (am *AuthInfoManager) Insert(auth model.AuthInfo) (string, error) {
 
 	copySession := am.session.Copy()
 	defer copySession.Close()
-	query := copySession.DB(config.Database.DatabaseName).C(accountCollectionName)
+	query := copySession.DB(config.Database.DatabaseName).C(AccountCollectionName)
 	auth.ID = bson.NewObjectId()
 	auth.CreatedAt = time.Now()
 	query.Insert(auth)
@@ -63,7 +63,7 @@ func (am *AuthInfoManager) FindAuthByStatus(accountID string, status model.AuthC
 	var authInfos []model.AuthInfo
 	copySession := am.session.Copy()
 	defer copySession.Close()
-	coll := copySession.DB(config.Database.DatabaseName).C(accountCollectionName)
+	coll := copySession.DB(config.Database.DatabaseName).C(AccountCollectionName)
 	var query = bson.M{"accountId": accountID, "result": status}
 	coll.Find(query).All(authInfos)
 	return authInfos, nil

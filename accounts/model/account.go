@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -68,7 +69,9 @@ type InterestTag struct {
 //Follows 关注
 type Follows struct {
 	ID        bson.ObjectId `bson:"_id" json:"id"`
-	AccountID string        `bson:"accountId" json:"accountId"`
-	FollowID  string        `bson:"followId" json:"followId"`
+	AccountID mgo.DBRef     `bson:"accountId" json:"accountId"`
+	FollowID  mgo.DBRef     `bson:"followId" json:"followId,omitempty"`
 	CreatedAt time.Time     `bson:"createdAt" json:"createdAt,omitempty"`
+	Account   Account       `bson:"-" json:"account,omitempty"`
+	Follow    Account       `bson:"-" json:"follow,omitempty"`
 }

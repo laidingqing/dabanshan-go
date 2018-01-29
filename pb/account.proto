@@ -121,3 +121,11 @@ message FollowUserRequest {
 message FollowUserResponse {
   bool followed = 1;
 }
+
+message GetFollowsRequest {
+  string accountid = 1;
+}
+
+message GetFollowsResponse {
+  repeated Account accounts = 1;
+}

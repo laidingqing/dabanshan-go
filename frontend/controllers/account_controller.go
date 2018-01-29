@@ -70,6 +70,20 @@ func (uc AccountsController) Register(container *restful.Container) {
 		Param(usersWebService.PathParameter("user-id", "User Name").DataType("string")).
 		Writes(AccountResponse{}))
 
+	usersWebService.Route(usersWebService.POST("/{user-id}/follows").To(uc.createFollows).
+		Filter(AuthUser).
+		Doc("Post a User's Follow").
+		Operation("createFollows").
+		Param(usersWebService.PathParameter("user-id", "User Name").DataType("string")).
+		Writes(AccountResponse{}))
+
+	usersWebService.Route(usersWebService.GET("/{user-id}/follows").To(uc.getFollows).
+		Filter(AuthUser).
+		Doc("Get a User's Follow").
+		Operation("getFollows").
+		Param(usersWebService.PathParameter("user-id", "User Name").DataType("string")).
+		Writes(AccountResponse{}))
+
 	container.Add(usersWebService)
 }
 
@@ -90,6 +104,11 @@ func (uc AccountsController) create(request *restful.Request, response *restful.
 	}
 	response.AddHeader("ETag", rev.Account.Id)
 	response.WriteHeader(http.StatusCreated)
+	response.WriteEntity(AccountResponse{
+		Account: model.Account{
+			AccountID: rev.Account.Id,
+		},
+	})
 }
 
 // read user info
@@ -141,5 +160,29 @@ func (uc AccountsController) session(request *restful.Request, response *restful
 
 //createTags, update a tags by buyer.
 func (uc AccountsController) createTags(request *restful.Request, response *restful.Response) {
+	// userID := request.PathParameter("user-id")
+}
 
+//createFollows create a follow by account
+func (uc AccountsController) createFollows(request *restful.Request, response *restful.Response) {
+	userID := request.PathParameter("user-id")
+	followID := request.QueryParameter("followId")
+	_, err := clients.GetAccountClient().FollowUser(context.Background(), &pb.FollowUserRequest{Accountid: userID, Followid: followID})
+	if err != nil {
+		WriteError(err, response)
+		return
+	}
+	response.WriteHeader(http.StatusCreated)
+}
+
+//getFollows get follows by account
+func (uc AccountsController) getFollows(request *restful.Request, response *restful.Response) {
+	userID := request.PathParameter("user-id")
+	res, err := clients.GetAccountClient().GetFollows(context.Background(), &pb.GetFollowsRequest{Accountid: userID})
+	if err != nil {
+		WriteError(err, response)
+		return
+	}
+	response.WriteHeader(http.StatusOK)
+	response.WriteEntity(EncodeAccounts(res.Accounts))
 }

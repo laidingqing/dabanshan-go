@@ -10,6 +10,7 @@ import (
 	"github.com/laidingqing/dabanshan/accounts/mongo"
 	"github.com/laidingqing/dabanshan/common/util"
 	"github.com/laidingqing/dabanshan/pb"
+	mgo "gopkg.in/mgo.v2"
 )
 
 // RPCAccountServer is used to implement user_service.UserServiceServer.
@@ -125,13 +126,18 @@ func (s *RPCAccountServer) FollowUser(ctx context.Context, in *pb.FollowUserRequ
 		return nil, err
 	}
 
-	follows, err := accountManager.FindFollows(account.AccountID, flowAcct.AccountID)
+	log.Printf("found account: %s, flow acct: %s", account.ID, flowAcct.ID)
+	var follows = []*model.Follows{}
+	if err := accountManager.FindFollows(account.AccountID, flowAcct.AccountID, follows); err != nil {
+		return nil, err
+	}
+
 	if len(follows) > 0 {
 		return &pb.FollowUserResponse{Followed: true}, nil
 	}
 	rev, err := accountManager.InsertFollow(model.Follows{
-		AccountID: account.ID.Hex(),
-		FollowID:  flowAcct.ID.Hex(),
+		AccountID: mgo.DBRef{Collection: mongo.AccountCollectionName, Id: account.ID, Database: mongo.DatabaseName},
+		FollowID:  mgo.DBRef{Collection: mongo.AccountCollectionName, Id: flowAcct.ID, Database: mongo.DatabaseName},
 		CreatedAt: time.Now(),
 	})
 	log.Printf("new follow[%s] by acct id: %s", rev, account.AccountID)
@@ -139,4 +145,21 @@ func (s *RPCAccountServer) FollowUser(ctx context.Context, in *pb.FollowUserRequ
 		return nil, err
 	}
 	return &pb.FollowUserResponse{Followed: true}, nil
+}
+
+//GetFollows get follows by account
+func (s *RPCAccountServer) GetFollows(ctx context.Context, in *pb.GetFollowsRequest) (*pb.GetFollowsResponse, error) {
+	res, err := accountManager.FindAccountFollows(in.Accountid)
+	if err != nil {
+		return nil, err
+	}
+
+	var followAccts = []*pb.Account{}
+	for i := range res {
+		followAccts = append(followAccts, dencodeAccountInfo(res[i].Follow))
+	}
+
+	return &pb.GetFollowsResponse{
+		Accounts: followAccts,
+	}, nil
 }

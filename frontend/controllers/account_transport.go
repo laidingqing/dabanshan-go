@@ -12,3 +12,14 @@ func EncodeAccount(acct *pb.Account) model.Account {
 		UserName:  acct.Username,
 	}
 }
+
+func EncodeAccounts(accts []*pb.Account) []model.Account {
+	var accounts []model.Account
+	for i := range accts {
+		accounts = append(accounts, model.Account{
+			AccountID: accts[i].Id,
+			UserName:  accts[i].Username,
+		})
+	}
+	return accounts
+}
