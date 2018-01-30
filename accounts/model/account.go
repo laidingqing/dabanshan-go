@@ -59,15 +59,24 @@ type AuthInfo struct {
 	CreatedAt time.Time       `bson:"createdAt" json:"createdAt,omitempty"`
 }
 
-//InterestTag 账号关注的食材标签
-type InterestTag struct {
+//Interest 账号关注的食材标签
+type Interest struct {
 	ID        bson.ObjectId `bson:"_id" json:"id"`
-	AccountID string        `bson:"accountId" json:"accountId"`
-	Tags      []string      `bson:"tags" json:"tags"` //关注的标签
+	AccountID mgo.DBRef     `bson:"accountId" json:"accountId"`
+	Account   Account       `bson:"-" json:"account,omitempty"`
+	TagID     mgo.DBRef     `bson:"tagId" json:"tagId"`
+	CreatedAt time.Time     `bson:"createdAt" json:"createdAt,omitempty"`
 }
 
-//Follows 关注
-type Follows struct {
+//Tag all tags.
+type Tag struct {
+	ID        bson.ObjectId `bson:"_id" json:"id,omitempty"`
+	Name      string        `bson:"name" json:"name,omitempty"`
+	CreatedAt time.Time     `bson:"createdAt" json:"createdAt,omitempty"`
+}
+
+//Follow 关注
+type Follow struct {
 	ID        bson.ObjectId `bson:"_id" json:"id"`
 	AccountID mgo.DBRef     `bson:"accountId" json:"accountId"`
 	FollowID  mgo.DBRef     `bson:"followId" json:"followId,omitempty"`

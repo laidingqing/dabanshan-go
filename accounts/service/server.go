@@ -11,6 +11,7 @@ import (
 	"github.com/laidingqing/dabanshan/common/util"
 	"github.com/laidingqing/dabanshan/pb"
 	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // RPCAccountServer is used to implement user_service.UserServiceServer.
@@ -127,7 +128,7 @@ func (s *RPCAccountServer) FollowUser(ctx context.Context, in *pb.FollowUserRequ
 	}
 
 	log.Printf("found account: %s, flow acct: %s", account.ID, flowAcct.ID)
-	var follows = []*model.Follows{}
+	var follows = []*model.Follow{}
 	if err := accountManager.FindFollows(account.AccountID, flowAcct.AccountID, follows); err != nil {
 		return nil, err
 	}
@@ -135,7 +136,7 @@ func (s *RPCAccountServer) FollowUser(ctx context.Context, in *pb.FollowUserRequ
 	if len(follows) > 0 {
 		return &pb.FollowUserResponse{Followed: true}, nil
 	}
-	rev, err := accountManager.InsertFollow(model.Follows{
+	rev, err := accountManager.InsertFollow(model.Follow{
 		AccountID: mgo.DBRef{Collection: mongo.AccountCollectionName, Id: account.ID, Database: mongo.DatabaseName},
 		FollowID:  mgo.DBRef{Collection: mongo.AccountCollectionName, Id: flowAcct.ID, Database: mongo.DatabaseName},
 		CreatedAt: time.Now(),
@@ -162,4 +163,27 @@ func (s *RPCAccountServer) GetFollows(ctx context.Context, in *pb.GetFollowsRequ
 	return &pb.GetFollowsResponse{
 		Accounts: followAccts,
 	}, nil
+}
+
+//CreateInterests create interests by account
+func (s *RPCAccountServer) CreateInterests(ctx context.Context, in *pb.CreateTagsRequest) (*pb.CreateTagsResonse, error) {
+	for i := range in.Tags {
+		rev, err := accountManager.UpdateTagName(in.Tags[i].Name)
+		if err == nil {
+			res, _ := accountManager.CreateInterest(model.Interest{
+				AccountID: mgo.DBRef{Collection: mongo.AccountCollectionName, Id: in.Accountid},
+				TagID:     mgo.DBRef{Collection: mongo.TagsCollectionName, Id: bson.ObjectIdHex(rev)},
+			})
+			log.Printf("create interest rev: %s", res)
+		} else {
+			log.Printf("update tag err: %s", err.Error())
+		}
+	}
+	return &pb.CreateTagsResonse{Created: true}, nil
+}
+
+//GetInterests get all interests of tags
+func (s *RPCAccountServer) GetInterests(ctx context.Context, in *pb.GetTagsRequest) (*pb.GetTagsResponse, error) {
+
+	return &pb.GetTagsResponse{}, nil
 }

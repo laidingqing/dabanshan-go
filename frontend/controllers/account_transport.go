@@ -13,6 +13,7 @@ func EncodeAccount(acct *pb.Account) model.Account {
 	}
 }
 
+//EncodeAccounts encode accounts
 func EncodeAccounts(accts []*pb.Account) []model.Account {
 	var accounts []model.Account
 	for i := range accts {
@@ -22,4 +23,15 @@ func EncodeAccounts(accts []*pb.Account) []model.Account {
 		})
 	}
 	return accounts
+}
+
+//DecodeTags model to pb for tags
+func DecodeTags(tags []model.Tag) []*pb.Tag {
+	var pbtags []*pb.Tag
+	for i := range tags {
+		pbtags = append(pbtags, &pb.Tag{
+			Name: tags[i].Name,
+		})
+	}
+	return pbtags
 }

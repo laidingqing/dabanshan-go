@@ -63,7 +63,7 @@ func (uc AccountsController) Register(container *restful.Container) {
 		Param(usersWebService.PathParameter("user-id", "User Name").DataType("string")).
 		Writes(AccountResponse{}))
 
-	usersWebService.Route(usersWebService.POST("/{user-id}/tags").To(uc.createTags).
+	usersWebService.Route(usersWebService.POST("/{user-id}/interests").To(uc.createInterests).
 		Filter(AuthUser).
 		Doc("Post a User's Tags").
 		Operation("createTags").
@@ -159,8 +159,24 @@ func (uc AccountsController) session(request *restful.Request, response *restful
 }
 
 //createTags, update a tags by buyer.
-func (uc AccountsController) createTags(request *restful.Request, response *restful.Response) {
-	// userID := request.PathParameter("user-id")
+func (uc AccountsController) createInterests(request *restful.Request, response *restful.Response) {
+	userID := request.PathParameter("user-id")
+	var tags []model.Tag
+	err := request.ReadEntity(&tags)
+	if err != nil {
+		WriteBadRequestErrorInfo(response, err)
+		return
+	}
+	res, err := clients.GetAccountClient().CreateInterests(context.Background(), &pb.CreateTagsRequest{
+		Accountid: userID,
+		Tags:      DecodeTags(tags),
+	})
+	if err != nil {
+		WriteError(err, response)
+		return
+	}
+	response.WriteHeader(http.StatusCreated)
+	response.WriteEntity(res.Created)
 }
 
 //createFollows create a follow by account

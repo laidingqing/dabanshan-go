@@ -45,6 +45,10 @@ message Account {
     repeated AccountType roles = 6;//角色
 }
 
+message Tag {
+  string name = 1;
+}
+
 message CreateAccountRequest {
     string username = 1;
     string password = 2;
@@ -128,4 +132,21 @@ message GetFollowsRequest {
 
 message GetFollowsResponse {
   repeated Account accounts = 1;
+}
+
+message CreateTagsRequest {
+  string accountid = 1;
+  repeated Tag tags = 2;
+}
+
+message CreateTagsResonse {
+  bool created = 1;
+}
+
+message GetTagsRequest {
+  string accountid = 1;
+}
+
+message GetTagsResponse {
+  repeated Tag tags = 1;
 }

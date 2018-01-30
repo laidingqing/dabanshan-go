@@ -23,4 +23,7 @@ service AccountService {
 
     rpc followUser (FollowUserRequest) returns (FollowUserResponse);
     rpc getFollows (GetFollowsRequest) returns (GetFollowsResponse);
+
+    rpc createInterests (CreateTagsRequest) returns (CreateTagsResonse);
+    rpc getInterests (GetTagsRequest) returns (GetTagsResponse);
 }

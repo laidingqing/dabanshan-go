@@ -44,7 +44,7 @@ func WriteBadRequestError(response *restful.Response) {
 
 //WriteBadRequestErrorInfo ...
 func WriteBadRequestErrorInfo(response *restful.Response, err error) {
-	log.Printf("400: Bad Request")
+	log.Printf("400: Bad Request, %s", err.Error())
 	response.WriteErrorString(http.StatusBadRequest, err.Error())
 }
 
