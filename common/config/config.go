@@ -52,6 +52,6 @@ func LoadDefaults() {
 	Logger.MaxBackups = 3
 	Logger.MaxAge = 30
 
-	Database.HostURI = "http://localhost:27017"
+	Database.HostURI = "localhost:27017"
 	Database.DatabaseName = "dabanshan"
 }

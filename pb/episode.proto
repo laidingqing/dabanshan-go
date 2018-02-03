@@ -15,7 +15,8 @@ enum EpisodeStatus{
 message EpisodeHead {
   string name = 1;//名称
   string expire = 2;//过期时间
-  EpisodeStatus status = 3;//状态
+  string accountid = 3;//所属账号
+  EpisodeStatus status = 4;//状态
 }
 
 //Episode, by saler. include item
@@ -24,6 +25,8 @@ message EpisodeItem {
   string name = 2;
   float weight = 3; //重量（大约）
   float quantity = 4;//数量
+  string unit = 5;//单位
+  string accountid = 6;
 }
 
 message Episode {

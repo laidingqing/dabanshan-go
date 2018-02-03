@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"log"
 	"time"
 
 	"github.com/laidingqing/dabanshan/common/config"
@@ -52,7 +53,10 @@ func (em *EpisodeManager) InsertItems(episodeID string, items []model.EpisodeIte
 		items[i].ID = bson.NewObjectId()
 		items[i].EpisodeID = episodeID
 		items[i].CreatedAt = time.Now()
-		coll.Insert(items[i])
+		err := coll.Insert(items[i])
+		if err != nil {
+			log.Printf("insert items: %s", err.Error())
+		}
 	}
 
 	return nil

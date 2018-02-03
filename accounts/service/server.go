@@ -99,8 +99,8 @@ func (s *RPCAccountServer) GetCurrentAuthInfo(ctx context.Context, in *pb.GetAut
 //UpdateToken 更新当前会话TOKEN
 func (s *RPCAccountServer) UpdateToken(ctx context.Context, in *pb.UpdateSessionTokenRequest) (*pb.UpdateSessionTokenResonse, error) {
 	err := accountManager.UpdateCurrentToken(in.Accountid, in.Token)
-	log.Printf("UpdateCurrentToken Err: %s", err.Error())
 	if err != nil {
+		log.Printf("UpdateCurrentToken Err: %s", err.Error())
 		return &pb.UpdateSessionTokenResonse{Updated: false}, err
 	}
 	return &pb.UpdateSessionTokenResonse{Updated: true}, nil

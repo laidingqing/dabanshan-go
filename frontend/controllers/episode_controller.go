@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	restful "github.com/emicklei/go-restful"
@@ -61,6 +62,7 @@ func (ec EpisodesController) Register(container *restful.Container) {
 //create 创建一个供应需求，角色为卖方
 func (ec EpisodesController) create(request *restful.Request, response *restful.Response) {
 	credential, _ := auth.GetAuthenticateHeader(request)
+	log.Printf("credential %s", credential)
 	newEpisode := new(model.Episode)
 	err := request.ReadEntity(newEpisode)
 	if err != nil {

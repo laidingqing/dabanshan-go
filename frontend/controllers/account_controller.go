@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"strconv"
 
 	restful "github.com/emicklei/go-restful"
 	model "github.com/laidingqing/dabanshan/accounts/model"
@@ -150,8 +151,18 @@ func (uc AccountsController) session(request *restful.Request, response *restful
 		WriteError(err, response)
 		return
 	}
+	log.Printf("acount id. %s/%s", res.Account.Id, jwt)
 	//Save current account token.
+	rev, err := clients.GetAccountClient().UpdateToken(context.Background(), &pb.UpdateSessionTokenRequest{
+		Accountid: res.Account.Id,
+		Token:     jwt,
+	})
 
+	log.Printf("update session token successed. %s", strconv.FormatBool(rev.Updated))
+	if err != nil {
+		WriteError(err, response)
+		return
+	}
 	response.WriteEntity(auth.AccountCredentials{
 		Username:    res.Account.Username,
 		AccessToken: jwt,
