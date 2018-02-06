@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.dabanshan.grpc.domain";
+option java_outer_classname = "ProductProto";
+option objc_class_prefix = "DBS";
+
+package pb;
+
+
+message Category {
+  string id = 1;
+  string name = 2;
+  string parent = 3;
+}
+
+message Product {
+  string id = 1;
+  string sku = 2;
+  string name = 3;
+  float price = 4;
+  string category = 5;
+  string accountid = 6;
+  int64 status = 7;
+  repeated string imgurls = 8;
+}
+
+message Activity {
+
+}
+
+message FindCategoryRequest {
+  string parent = 1;
+}
+
+message FindCategoryResponse {
+  repeated Category categories = 1;
+}
+
+message FindProductLibRequest {
+  string word = 1;
+}
+
+message FindProductLibResponse {
+  repeated Product products = 1;
+}
+
+message FindActivitiesRequest {
+  string accountid = 1;
+  string way = 2;//ALL/VALID/INVALID
+}
+
+message FindActivitiesResponse {
+  repeated Activity activities = 1;
+}
+
+message CreateProductItemRequest {
+  Product product = 1;
+}
+
+message CreateProductItemResponse {
+  string id = 1;
+}

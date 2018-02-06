@@ -1,7 +1,6 @@
 package mongo
 
 import (
-	"log"
 	"time"
 
 	"github.com/laidingqing/dabanshan/common/config"
@@ -59,14 +58,25 @@ func (cm *CategoryManager) RemoveAll() error {
 func (cm *CategoryManager) Insert(category model.Category) (model.Category, error) {
 	copySession := cm.CopySession()
 	defer copySession.Close()
-	log.Printf("db : %s,%s", config.Database.DatabaseName, CategoryCollectionName)
 	query := copySession.DB(config.Database.DatabaseName).C(CategoryCollectionName)
 	category.ID = bson.NewObjectId()
 	category.CreatedAt = time.Now()
 	err := query.Insert(category)
 	if err != nil {
-		log.Printf("db manager err: %s", err.Error())
 		return model.Category{}, err
 	}
 	return category, nil
+}
+
+//FindAll find all category by parent ..
+func (cm *CategoryManager) FindAll(parentID string) ([]model.Category, error) {
+	copySession := cm.CopySession()
+	defer copySession.Close()
+	coll := copySession.DB(config.Database.DatabaseName).C(CategoryCollectionName)
+	var categories []model.Category
+	err := coll.Find(bson.M{"parent": parentID}).Sort("seq").All(&categories)
+	if err != nil {
+		return nil, err
+	}
+	return categories, nil
 }

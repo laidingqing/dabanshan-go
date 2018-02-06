@@ -12,7 +12,7 @@ import (
 	"github.com/laidingqing/dabanshan/accounts/service"
 	"github.com/laidingqing/dabanshan/common/config"
 	grpclb "github.com/laidingqing/dabanshan/common/registry"
-	"github.com/laidingqing/dabanshan/pb"
+	pb "github.com/laidingqing/dabanshan/pb"
 	"google.golang.org/grpc"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )

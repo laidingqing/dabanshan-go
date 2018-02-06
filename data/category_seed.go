@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/henrylee2cn/pholcus/common/goquery"
 	"github.com/laidingqing/dabanshan/common/config"
@@ -32,6 +33,8 @@ func main() {
 		panic(err)
 	}
 	for i := range categories {
+		categories[i].Parent = ""
+		categories[i].CreatedAt = time.Now()
 		category, err := manager.Insert(categories[i])
 		if err != nil {
 			panic(err)
@@ -45,7 +48,7 @@ func main() {
 		var seq = int16(0)
 		dom.Find(".list-t a.sub").Each(func(i int, s *goquery.Selection) {
 			seq++
-			sub, err := manager.Insert(model.Category{Name: s.Text(), Seq: seq, Parent: category.ID.Hex()})
+			sub, err := manager.Insert(model.Category{Name: s.Text(), Seq: seq, Parent: category.ID.Hex(), CreatedAt: time.Now()})
 			if err != nil {
 				panic(err)
 			}
@@ -55,7 +58,7 @@ func main() {
 			var childseq = int16(0)
 			dom.Find(fmt.Sprintf("#%s a", childNodeID)).Each(func(i int, s *goquery.Selection) {
 				childseq++
-				child, err := manager.Insert(model.Category{Name: s.Text(), Seq: childseq, Parent: sub.ID.Hex()})
+				child, err := manager.Insert(model.Category{Name: s.Text(), Seq: childseq, Parent: sub.ID.Hex(), CreatedAt: time.Now()})
 				if err != nil {
 					panic(err)
 				}

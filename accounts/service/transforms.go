@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/laidingqing/dabanshan/accounts/model"
-	"github.com/laidingqing/dabanshan/pb"
+	pb "github.com/laidingqing/dabanshan/pb"
 )
 
 func encodeAccountInfo(request *pb.Account) model.Account {

@@ -13,6 +13,8 @@ var (
 	ServiceEpisodeName = "episode_service"
 	//ServiceNotifactionName 通知服务
 	ServiceNotifactionName = "notifaction_service"
+	//ServiceProductsName 商品服务
+	ServiceProductsName = "products_service"
 )
 
 //APIVersion api prefix

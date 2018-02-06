@@ -29,10 +29,16 @@ func main() {
 	wsContainer := restful.NewContainer()
 	wsContainer.Router(restful.CurlyRouter{})
 	wsContainer.EnableContentEncoding(true)
+
 	uc := controllers.AccountsController{}
 	uc.Register(wsContainer)
+
 	ec := controllers.EpisodesController{}
 	ec.Register(wsContainer)
+
+	pc := controllers.ProductsController{}
+	pc.Register(wsContainer)
+
 	httpAddr := ":" + strconv.Itoa(config.Service.Port)
 	log.Printf("starting frontend at %s", httpAddr)
 	log.Fatal(http.ListenAndServe(httpAddr, wsContainer))

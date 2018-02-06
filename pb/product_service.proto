@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package pb;
+
+option java_multiple_files = true;
+option java_package = "com.dabanshan.grpc";
+option java_outer_classname = "ProductsServiceProto";
+option objc_class_prefix = "DBS";
+
+import "product.proto";
+
+service ProductsService {
+    rpc findCategories (FindCategoryRequest) returns (FindCategoryResponse);
+
+    rpc findProductsByLib (FindProductLibRequest) returns (FindProductLibResponse);
+
+    rpc findActivities (FindActivitiesRequest) returns (FindActivitiesResponse);
+
+    rpc createProductItem (CreateProductItemRequest) returns (CreateProductItemResponse);
+}

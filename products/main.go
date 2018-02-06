@@ -11,8 +11,8 @@ import (
 
 	"github.com/laidingqing/dabanshan/common/config"
 	grpclb "github.com/laidingqing/dabanshan/common/registry"
-	"github.com/laidingqing/dabanshan/notifications/service"
 	"github.com/laidingqing/dabanshan/pb"
+	"github.com/laidingqing/dabanshan/products/service"
 	"google.golang.org/grpc"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
@@ -21,14 +21,14 @@ func main() {
 	config.LoadDefaults()
 	config.ParseCmdParams(config.DefaultCmdLine{
 		HostName:         "localhost",
-		Port:             4400,
-		ServiceName:      config.ServiceNotifactionName,
+		Port:             4300,
+		ServiceName:      config.ServiceProductsName,
 		RegistryLocation: "http://127.0.0.1:2379",
 	})
 
 	// Set up the core logger
 	log.SetOutput(&lumberjack.Logger{
-		Filename:   "./logs/notifactions_service.log",
+		Filename:   "./logs/products_service.log",
 		MaxSize:    config.Logger.MaxSize,
 		MaxBackups: config.Logger.MaxBackups,
 		MaxAge:     config.Logger.MaxAge,
@@ -58,8 +58,8 @@ func main() {
 		os.Exit(1)
 	}()
 
-	log.Printf("starting notifaction service at %d", config.Service.Port)
+	log.Printf("starting user service at %d", config.Service.Port)
 	s := grpc.NewServer()
-	pb.RegisterNotifactionServiceServer(s, &service.RPCNotifactionServer{})
+	pb.RegisterProductsServiceServer(s, &service.RPCProductsServer{})
 	s.Serve(lis)
 }

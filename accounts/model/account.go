@@ -7,6 +7,15 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+//AuthenticationType 授权平台
+type AuthenticationType int
+
+const (
+	_ AuthenticationType = iota
+	//WEIXIN 微信开放平台
+	WEIXIN
+)
+
 //AuthCheckResult 认证审核结果
 type AuthCheckResult int
 
@@ -41,6 +50,29 @@ type Account struct {
 	CreatedAt   time.Time     `bson:"createdAt" json:"createdAt,omitempty"`
 	AccountType []AccountType `bson:"accountType" json:"accountType,omitempty"`
 	Token       string        `bson:"token" json:"-,omitempty"`
+	UserInfoRef mgo.DBRef     `bson:"infoRef" json:"-"`
+	UserInfo    UserInfo      `bson:"userInfo" json:"userInfo,omitempty"`
+}
+
+//Authentication 第三方授权认证登记表
+type Authentication struct {
+	ID        bson.ObjectId      `bson:"_id" json:"id"`
+	AccountID string             `bson:"accountId" json:"accountId,omitempty"`
+	OpenID    string             `bson:"openId" json:"openId,omitempty"`
+	Type      AuthenticationType `bson:"plateform" json:"plateform,omitempty"`
+	CreatedAt time.Time          `bson:"createdAt" json:"createdAt,omitempty"`
+}
+
+//UserInfo ...
+type UserInfo struct {
+	ID        bson.ObjectId `bson:"_id" json:"id"`
+	AvatarURL string        `bson:"avatarURL" json:"avatarURL,omitempty"`
+	City      string        `bson:"city" json:"city,omitempty"`
+	Country   string        `bson:"country" json:"country,omitempty"`
+	Gender    int           `bson:"gender" json:"gender,omitempty"`
+	NickName  string        `bson:"nickName" json:"nickName,omitempty"`
+	Province  string        `bson:"province" json:"province,omitempty"`
+	AccountID string        `bson:"accountId" json:"accountId,omitempty"`
 }
 
 //AuthInfo 用户认证信息

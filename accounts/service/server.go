@@ -9,7 +9,7 @@ import (
 	"github.com/laidingqing/dabanshan/accounts/model"
 	"github.com/laidingqing/dabanshan/accounts/mongo"
 	"github.com/laidingqing/dabanshan/common/util"
-	"github.com/laidingqing/dabanshan/pb"
+	pb "github.com/laidingqing/dabanshan/pb"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -19,7 +19,8 @@ type RPCAccountServer struct{}
 
 var (
 	accountManager = mongo.NewAccountManager()
-	authManager    = mongo.NewAuthInfoManager()
+
+	authManager = mongo.NewAuthInfoManager()
 )
 
 // CreateAccount implements account_service.UserServiceServer
