@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -26,6 +27,16 @@ func APIVersion() string {
 //APIPrefix .. api prefix
 func APIPrefix() string {
 	return "/api/" + APIVersion()
+}
+
+//BizError ...
+type BizError struct {
+	ErrorCode int    `bson:"code" json:"code,omitempty"`
+	Reason    string `bson:"reason" json:"reason,omitempty"`
+}
+
+func (err *BizError) Error() string {
+	return fmt.Sprintf("[Error]:%v: %v", err.ErrorCode, err.Reason)
 }
 
 //LogError Log an error

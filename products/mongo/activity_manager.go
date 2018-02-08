@@ -16,6 +16,7 @@ func NewActivityManager() *ActivityManager {
 	if err != nil {
 		fatalError(err)
 	}
+	// Ensure Index TODO
 	return &ActivityManager{
 		session: session,
 	}

@@ -33,3 +33,14 @@ func decodeProductItem(request *pb.Product) model.ProductItem {
 		Name: request.Name,
 	}
 }
+
+func encodeProductItem(request []model.ProductItem) []*pb.Product {
+	var products []*pb.Product
+	for i := range request {
+		products = append(products, &pb.Product{
+			Id:   request[i].ID.Hex(),
+			Name: request[i].Name,
+		})
+	}
+	return products
+}

@@ -17,3 +17,23 @@ func EncodeCategories(categories []*pb.Category) []model.Category {
 	}
 	return categoryList
 }
+
+//EncodeProducts ...
+func EncodeProducts(request []*pb.Product) []model.ProductItem {
+	var products []model.ProductItem
+	for i := range request {
+		products = append(products, model.ProductItem{
+			Name: request[i].Name,
+			SKU:  request[i].Sku,
+		})
+	}
+	return products
+}
+
+//DencodeProduct ...
+func DencodeProduct(request model.ProductItem) *pb.Product {
+	return &pb.Product{
+		Name: request.Name,
+		Sku:  request.SKU,
+	}
+}

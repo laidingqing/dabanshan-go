@@ -17,4 +17,5 @@ service ProductsService {
     rpc findActivities (FindActivitiesRequest) returns (FindActivitiesResponse);
 
     rpc createProductItem (CreateProductItemRequest) returns (CreateProductItemResponse);
+    rpc findProductItems (FindProductItemRequest) returns (FindProductItemResponse);
 }

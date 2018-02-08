@@ -56,3 +56,14 @@ func (s *RPCProductsServer) CreateProductItem(ctx context.Context, in *pb.Create
 		Id: rev,
 	}, nil
 }
+
+//FindProductItems find all product list
+func (s *RPCProductsServer) FindProductItems(ctx context.Context, in *pb.FindProductItemRequest) (*pb.FindProductItemResponse, error) {
+	revs, err := productItemManager.FindAll(in.Keyword, in.Storeid, in.Categoryid, in.Offset, in.Limit)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.FindProductItemResponse{
+		Products: encodeProductItem(revs),
+	}, nil
+}

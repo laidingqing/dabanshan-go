@@ -61,3 +61,15 @@ message CreateProductItemRequest {
 message CreateProductItemResponse {
   string id = 1;
 }
+
+message FindProductItemRequest {
+  string storeid = 1;
+  string categoryid = 2;
+  string keyword = 3;
+  int64  offset = 4;
+  int64 limit = 5;
+}
+
+message FindProductItemResponse {
+  repeated Product products = 1;
+}

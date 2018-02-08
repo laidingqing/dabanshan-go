@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/laidingqing/dabanshan/common/controller"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -52,6 +53,7 @@ type ProductLib struct {
 //ProductItem 销售中的商品项
 type ProductItem struct {
 	ID         bson.ObjectId `bson:"_id" json:"id,omitempty"`
+	ProductID  string        `bson:"-" json:"productId,omitempty"`
 	Name       string        `bson:"name" json:"name,omitempty"`
 	SKU        string        `bson:"sku" json:"sku,omitempty"`
 	AccountID  string        `bson:"accountId" json:"accountId,omitempty"`
@@ -64,6 +66,14 @@ type ProductItem struct {
 	Status     int           `bson:"status" json:"status,omitempty"`
 	CreatedAt  time.Time     `bson:"createdAt" json:"createdAt,omitempty"`
 	UpdatedAt  time.Time     `bson:"updatedAt" json:"updatedAt,omitempty"`
+}
+
+//ValidateProductItemRequired ProductItem struct func.
+func (pi *ProductItem) ValidateProductItemRequired() error {
+	if pi.SKU == "" {
+		return &controller.BizError{ErrorCode: 401, Reason: "SKU 是必须的"}
+	}
+	return nil
 }
 
 //WishList 愿望清单
