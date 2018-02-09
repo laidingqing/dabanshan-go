@@ -22,7 +22,7 @@ func main() {
 	config.ParseCmdParams(config.DefaultCmdLine{
 		HostName:         "localhost",
 		Port:             4400,
-		ServiceName:      config.ServiceNotifactionName,
+		ServiceName:      config.ServiceNotificationName,
 		RegistryLocation: "http://127.0.0.1:2379",
 	})
 
@@ -33,6 +33,8 @@ func main() {
 		MaxBackups: config.Logger.MaxBackups,
 		MaxAge:     config.Logger.MaxAge,
 	})
+
+	service.InitWorkers(0, 0)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", config.Service.Port))
 	if err != nil {
@@ -60,6 +62,6 @@ func main() {
 
 	log.Printf("starting notifaction service at %d", config.Service.Port)
 	s := grpc.NewServer()
-	pb.RegisterNotifactionServiceServer(s, &service.RPCNotifactionServer{})
+	pb.RegisterNotificationServiceServer(s, &service.RPCNotificationServer{})
 	s.Serve(lis)
 }
